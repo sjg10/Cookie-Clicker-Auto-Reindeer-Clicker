@@ -1,7 +1,8 @@
 TARGET = clicker
-LIBS =
+MAGICKWAND =  `pkg-config --cflags --libs MagickWand`
+LIBS = ${MAGICKWAND}
 CC = gcc
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall ${MAGICKWAND}
 SRC_FOLDER = ../src
 CSRC = $(wildcard ${SRC_FOLDER}/*.c)
 #CSRC = ../src/main.c ../src/scan.c
