@@ -8,6 +8,7 @@ Prerequisites
 
 - The system must have libmagickwand tools installed.
    On Ubuntu this can be installed with `apt-get install libmagickwand-dev`, or get the ImageMagick development rpm's from https://www.imagemagick.org/script/download.php and install these.
+- The system must have x11 utils, specifically xwininfo (ost distros include this).
 
 Build Process
 =============
