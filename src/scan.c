@@ -3,7 +3,10 @@
 #include <string.h>
 #include <wand/MagickWand.h>
 #include <time.h>
-#include <unistd.h>
+#include <unistd.h>   //_getch
+#include <termios.h>  //_getch
+#include <sys/select.h>
+#include <termios.h>
 
 #define MAX_STR_LEN 100
 /** Period in usec to repeat search */
@@ -16,6 +19,55 @@
 /* Heights are guesses */
 #define regionTop(windowHeight) ((int)(windowHeight / 3))
 #define regionHeight(windowHeight) ((int)(windowHeight / 3) * 2)
+
+
+
+/**
+ * Toggles the terminal mode to press-by-press instead of line-by-line for
+ * listening for keys. Calling again returns to usual settings.
+ * Repeated calls are ignored.
+ * Registers itself to be called atexit incase of unexpected termination.
+ */ 
+void toggleConioTerminalMode()
+{
+    static int mode = 0;
+    static struct termios orig_termios;
+    struct termios new_termios;
+    switch(mode++) {
+        case 0:
+            /* take two copies - one for now, one for later */
+            tcgetattr(0, &orig_termios);
+            memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+
+            /* register cleanup handler, and set the new terminal mode */
+            atexit(toggleConioTerminalMode);
+            cfmakeraw(&new_termios);
+            tcsetattr(0, TCSANOW, &new_termios);
+            break;
+        case 1:
+            /* Restore the old settings */
+            tcsetattr(0, TCSANOW, &orig_termios);
+            printf("\n");
+            break;
+        default:
+            /* Do nothing else */
+            break;
+    }
+}
+
+/**
+ * Listens for a keypress, returns if one has occured since the last kbhit call.
+ * @pre toggleConioTerminalMode to enable keypress-by-keypress read.
+ * @return the key pressed or 0 if none
+ */
+int kbhit()
+{
+    struct timeval tv = { 0L, 0L };
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(0, &fds);
+    return select(1, &fds, NULL, NULL, &tv);
+}
 
 /**
  * Create the appropriate search string to capture the needed search area
@@ -75,7 +127,7 @@ void reactToDiff(long unsigned int x, long unsigned int y) {
  * @return function does not return
  */ 
 void scanLoop(MagickWand ** wands, char * searchString) {
-    printf("Beginning scan... (CTRL-C to exit at any time)\n");
+    printf("Beginning scan... (press any key to exit at any time)\n");
     /* Get first image */
     MagickReadImage(wands[0], searchString);
     MagickReadImage(wands[1], searchString);
@@ -83,13 +135,15 @@ void scanLoop(MagickWand ** wands, char * searchString) {
     unsigned long number_wands[2];
     unsigned long x,y;
     PixelWand ** pixels[2];
-    iterators[0] = NewPixelIterator(wands[0]);
-    iterators[1] = NewPixelIterator(wands[1]);
     /* Set next wand t store image */
     int i = 1;
-    while(1) {
+    /* Prepare for scanning for keypress */
+    toggleConioTerminalMode();
+    while(!kbhit()) {
         clock_t start = clock(), diff;
         /* Get image */
+        iterators[0] = NewPixelIterator(wands[0]);
+        iterators[1] = NewPixelIterator(wands[1]);
         MagickReadImage(wands[i], searchString);
         pixels[0] = PixelGetNextIteratorRow(iterators[0],&number_wands[0]);
         pixels[1] = PixelGetNextIteratorRow(iterators[1],&number_wands[1]);
@@ -125,6 +179,8 @@ void scanLoop(MagickWand ** wands, char * searchString) {
         }
     }
     /* Free resources */
+    printf("Freeing scan resources and exiting...\n");
+    toggleConioTerminalMode();
     iterators[1]=DestroyPixelIterator(iterators[1]);
     iterators[0]=DestroyPixelIterator(iterators[0]);
 }
