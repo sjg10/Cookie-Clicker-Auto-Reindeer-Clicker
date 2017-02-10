@@ -119,6 +119,38 @@ void reactToDiff(long unsigned int x, long unsigned int y) {
 }
 
 /**
+ * React to a given non-trivial red scale diff.
+ *
+ * @param[in] wand the diff
+ */
+void processNonTrivialDiff(MagickWand * wand) {
+#if 0
+    unsigned long x, y, number_wands;
+    PixelIterator * iterator;
+    iterator = NewPixelIterator(wand);
+    PixelWand ** pixels = PixelGetNextIteratorRow(iterator,&number_wands);
+    /* Iterate through rows */
+    for (x = 0; pixels != (PixelWand **) NULL; x++)
+    {
+        /* And columns in that row */
+        for(y = 0; y < number_wands; y++) {
+            /* TODO: check for red and react if red 
+                    reactToDiff(x,y);
+                    break;
+            */
+        }
+        /* Make sure to increment the rows */
+        pixels = PixelGetNextIteratorRow(iterator,&number_wands);
+    }
+    /* And reset on completion */
+    iterator=DestroyPixelIterator(iterator);
+#else
+    MagickWriteImage(wand, "my_diff.png");
+#endif
+
+}
+
+/**
  * Use the supplied 2 wands to take a sequence of images using the search string and compare them
  * every TIME_DELAY usecs. Click on the changed parts of the image.
  *
@@ -131,10 +163,8 @@ void scanLoop(MagickWand ** wands, char * searchString) {
     /* Get first image */
     MagickReadImage(wands[0], searchString);
     MagickReadImage(wands[1], searchString);
-    PixelIterator * iterators[2];
-    unsigned long number_wands[2];
-    unsigned long x,y;
-    PixelWand ** pixels[2];
+    MagickWand * diff_wand;
+    diff_wand = NewMagickWand();
     /* Set next wand t store image */
     int i = 1;
     /* Prepare for scanning for keypress */
@@ -142,30 +172,17 @@ void scanLoop(MagickWand ** wands, char * searchString) {
     while(!kbhit()) {
         clock_t start = clock(), diff;
         /* Get image */
-        iterators[0] = NewPixelIterator(wands[0]);
-        iterators[1] = NewPixelIterator(wands[1]);
         MagickReadImage(wands[i], searchString);
-        pixels[0] = PixelGetNextIteratorRow(iterators[0],&number_wands[0]);
-        pixels[1] = PixelGetNextIteratorRow(iterators[1],&number_wands[1]);
-        /* Iterate through rows */
-        for (x = 0; pixels[0] != (PixelWand **) NULL; x++)
-        {
-            /* And columns in that row */
-            for(y = 0; y < number_wands[0]; y++) {
-                /* And compare */
-                if (PixelGetIndex(pixels[0][y]) != PixelGetIndex(pixels[1][y])) {
-                    /* TODO: comparision doesn't seem to work yet */
-                        reactToDiff(x,y);
-                        break;
-                }
-            }
-            /* Make sure to increment the rows */
-            pixels[0] = PixelGetNextIteratorRow(iterators[0],&number_wands[0]);
-            pixels[1] = PixelGetNextIteratorRow(iterators[1],&number_wands[1]);
+        double distortion;
+        //Composite to use: SrcCompositeOp
+        diff_wand = MagickCompareImages(wands[0], wands[1],
+                AbsoluteErrorMetric, &distortion);
+        if(distortion != 0) {
+            /* TODO: correct composite setting */
+            MagickCompositeImage(diff_wand, wands[0], SrcCompositeOp, 0, 0);
+            processNonTrivialDiff(diff_wand);
+            break;
         }
-        /* And reset on completion */
-        PixelResetIterator(iterators[0]);
-        PixelResetIterator(iterators[1]);
         /* Swap to use next wand next loop */
         i = 1 - i;
         /* And fill in the loop the correct time */
@@ -180,9 +197,8 @@ void scanLoop(MagickWand ** wands, char * searchString) {
     }
     /* Free resources */
     printf("Freeing scan resources and exiting...\n");
+    diff_wand=DestroyMagickWand(diff_wand);
     toggleConioTerminalMode();
-    iterators[1]=DestroyPixelIterator(iterators[1]);
-    iterators[0]=DestroyPixelIterator(iterators[0]);
 }
 
 
