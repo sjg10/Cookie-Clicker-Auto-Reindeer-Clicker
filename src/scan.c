@@ -19,6 +19,14 @@
  *   If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file Module for beginning scans of a window.
+ */
+
+/* ---------------------------------------------------------------- */
+/* Include Files                                                    */
+/* ---------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -28,6 +36,10 @@
 #include <termios.h>  //_getch
 #include <sys/select.h>
 #include <termios.h>
+
+/* ---------------------------------------------------------------- */
+/* Local Defines                                                    */
+/* ---------------------------------------------------------------- */
 
 #define MAX_STR_LEN 100
 /** Period in usec to repeat search */
@@ -41,7 +53,9 @@
 #define regionTop(windowHeight) ((int)(windowHeight / 3))
 #define regionHeight(windowHeight) ((int)(windowHeight / 3) * 2)
 
-
+/* ---------------------------------------------------------------- */
+/* Function Definitions                                             */
+/* ---------------------------------------------------------------- */
 
 /**
  * Toggles the terminal mode to press-by-press instead of line-by-line for

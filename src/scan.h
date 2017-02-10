@@ -19,8 +19,16 @@
  *   If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file Module for beginning scans of a window.
+ */
+
 #ifndef SCAN_H
 #define SCAN_H
+
+/* ---------------------------------------------------------------- */
+/* Function Declarations                                            */
+/* ---------------------------------------------------------------- */
 
 /**
  * Begin scanning a window for changes and clicking on them.

@@ -19,14 +19,31 @@
  *   If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file Entry point and module for discovering the Cookie Clicker window.
+ */
+
+
+/* ---------------------------------------------------------------- */
+/* Include Files                                                    */
+/* ---------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include "scan.h"
 
+/* ---------------------------------------------------------------- */
+/* Local Defines                                                    */
+/* ---------------------------------------------------------------- */
+
 /* Number of charachters to read in for popen calls */
 #define BUFSIZE 100
+
+/* ---------------------------------------------------------------- */
+/* Function Definitions                                             */
+/* ---------------------------------------------------------------- */
 
 /** 
  * Uses xtools to get windowID.
