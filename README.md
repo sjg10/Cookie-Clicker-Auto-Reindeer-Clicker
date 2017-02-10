@@ -3,7 +3,7 @@ Introduction
 
 Cookie Clicker is a Javascript powered browser game. One mode of it involves clicking on reindeer as they appear and mov across the screen.
 They spawn rarely and some game achievements require 200 clicks.
-This is a CLI C-based tool, utilising the imageMagick Wand API and X11 headers, to scan the Cookie Clicker window for reindeer, and then autoclick them.
+This is Cookie Clicker Auto Reindeer Clicker. It is a CLI C-based tool, utilising the imageMagick Wand API and X11 headers, to scan the Cookie Clicker window for reindeer, and then autoclick them.
 
 License
 =======
