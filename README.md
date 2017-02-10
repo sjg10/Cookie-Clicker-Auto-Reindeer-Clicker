@@ -1,14 +1,16 @@
 Introduction
 ============
 
-A cli activated C-based tool utilising the imageMagick Wand API and X11 headers to look for and then autoclick Reindeer!
+Cookie Clicker is a Javascript powered browser game. One mode of it involves clicking on reindeer as they appear and mov across the screen.
+They spawn rarely and some game achievements require 200 clicks.
+This is a CLI C-based tool, utilising the imageMagick Wand API and X11 headers, to scan the Cookie Clicker window for reindeer, and then autoclick them.
 
 Prerequisites
 =============
 
 - The system must have libmagickwand tools installed.
    On Ubuntu this can be installed with `apt-get install libmagickwand-dev`, or get the ImageMagick development rpm's from https://www.imagemagick.org/script/download.php and install these.
-- The system must have x11 utils, specifically xwininfo (ost distros include this).
+- The system must have x11 utils, specifically xwininfo (most distros include this).
 
 Build Process
 =============
